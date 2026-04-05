@@ -1,6 +1,8 @@
 import React from "react";
 import { Streamdown, defaultRemarkPlugins } from "streamdown";
 import remarkCitationParser from "@/utils/remarkCitationParser";
+import remarkInlineMath from "@/utils/remarkInlineMath";
+import remarkBackslash from "@/utils/remarkBackslash";
 import CopyButton from "./CopyButton";
 import type { BundledLanguage } from "shiki";
 import { highlighter } from "@/lib/highlighter";
@@ -131,6 +133,8 @@ const StreamingMarkdownContent: React.FC<StreamingMarkdownContentProps> =
       return [
         defaultRemarkPlugins.gfm,
         defaultRemarkPlugins.math,
+        remarkBackslash,
+        remarkInlineMath,
         remarkCitationParser,
       ];
     }, []);
