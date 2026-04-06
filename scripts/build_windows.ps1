@@ -72,6 +72,8 @@ function checkEnv {
         $pattern="v(.+)"
         if ($data -match $pattern) {
             $script:VERSION=$matches[1]
+        } else {
+            $script:VERSION=$data
         }
     } else {
         $script:VERSION=$env:VERSION
