@@ -30,6 +30,7 @@ jobs:
           echo vendorsha=$(cat LLAMA_CPP_VERSION)-$(cat MLX_VERSION)-$(cat MLX_C_VERSION) | tee -a $GITHUB_OUTPUT
 
   darwin-build:
+    if: ${{ false }}
     runs-on: macos-latest
     environment: release
     needs: setup-environment
@@ -424,6 +425,7 @@ jobs:
             dist/OllamaSetup.exe
 
   linux-depends:
+    if: ${{ false }}
     strategy:
       matrix:
         include:
@@ -496,6 +498,7 @@ jobs:
   # Heavy stages were pre-built by linux-depends; this job is cache-hit-only for those layers
   # and just assembles, runs the Go build, pushes the final image, and extracts release bundles.
   docker-build-push:
+    if: ${{ false }}
     strategy:
       matrix:
         include:
@@ -629,6 +632,7 @@ jobs:
 
   # Merge Docker images for the same flavor into a single multi-arch manifest
   docker-merge-push:
+    if: ${{ false }}
     strategy:
       matrix:
         suffix: ['', '-rocm']
@@ -666,7 +670,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: release
-    needs: [darwin-build, windows-app, docker-build-push]
+    needs: [windows-app]
     timeout-minutes: 120
     permissions:
       contents: write
