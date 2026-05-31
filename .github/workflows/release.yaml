@@ -27,9 +27,10 @@ jobs:
           echo vendorsha=$(cat LLAMA_CPP_VERSION)-$(cat MLX_VERSION)-$(cat MLX_C_VERSION) | tee -a $GITHUB_OUTPUT
 
   darwin-build:
-    runs-on: macos-26-xlarge
+    runs-on: macos-latest
     environment: release
     needs: setup-environment
+    timeout-minutes: 360
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
       VERSION: ${{ needs.setup-environment.outputs.VERSION }}
@@ -140,11 +141,12 @@ jobs:
               - '"nvvm"'
               - '"nvptxcompiler"'
             cuda-version: '13.0'
-    runs-on: ${{ matrix.arch == 'arm64' && format('{0}-{1}', matrix.os, matrix.arch) || matrix.os }}
+    runs-on: windows-latest
     environment: release
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
       VERSION: ${{ needs.setup-environment.outputs.VERSION }}
+    timeout-minutes: 360
     steps:
       - if: startsWith(matrix.preset, 'MLX ')
         name: Increase pagefile to 200 GB
@@ -283,9 +285,10 @@ jobs:
           path: dist\*
 
   windows-build:
-    runs-on: windows
+    runs-on: windows-latest
     environment: release
     needs: [setup-environment]
+    timeout-minutes: 360
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
       VERSION: ${{ needs.setup-environment.outputs.VERSION }}
@@ -347,9 +350,10 @@ jobs:
             dist\*
 
   windows-app:
-    runs-on: windows
+    runs-on: windows-latest
     environment: release
     needs: [setup-environment, windows-build, windows-depends]
+    timeout-minutes: 360
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
       VERSION: ${{ needs.setup-environment.outputs.VERSION }}
@@ -432,21 +436,12 @@ jobs:
             target: llama-server-rocm_v7_2
           - arch: amd64
             target: llama-server-vulkan
-          - arch: arm64
-            target: llama-server-cpu
-          - arch: arm64
-            target: llama-server-cuda_v12
-          - arch: arm64
-            target: llama-server-cuda_v13
-          - arch: arm64
-            target: jetpack-5
-          - arch: arm64
-            target: jetpack-6
-    runs-on: ${{ matrix.arch == 'arm64' && 'linux-arm64' || 'linux' }}
+    runs-on: ubuntu-latest
     environment: release
     needs: setup-environment
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -502,24 +497,6 @@ jobs:
       matrix:
         include:
           - os: linux
-            arch: arm64
-            archive-target: archive
-            build-args: |
-              CGO_CFLAGS
-              CGO_CXXFLAGS
-              GOFLAGS
-              APT_MIRROR=http://azure.archive.ubuntu.com/ubuntu
-              APT_PORTS_MIRROR=http://azure.ports.ubuntu.com/ubuntu-ports
-              OLLAMA_MLX_BUILD_JOBS=16
-              OLLAMA_MLX_NVCC_THREADS=6
-            cache-from: |
-              type=registry,ref=ollama/release:cache-arm64-llama-server-cpu
-              type=registry,ref=ollama/release:cache-arm64-llama-server-cuda_v12
-              type=registry,ref=ollama/release:cache-arm64-llama-server-cuda_v13
-              type=registry,ref=ollama/release:cache-arm64-jetpack-5
-              type=registry,ref=ollama/release:cache-arm64-jetpack-6
-              type=registry,ref=${{ vars.DOCKER_REPO }}:latest
-          - os: linux
             arch: amd64
             archive-target: archive
             build-args: |
@@ -555,11 +532,12 @@ jobs:
               type=registry,ref=ollama/release:cache-amd64-llama-server-cpu
               type=registry,ref=ollama/release:cache-amd64-llama-server-rocm_v7_2
               type=registry,ref=${{ vars.DOCKER_REPO }}:latest
-    runs-on: ${{ matrix.arch == 'arm64' && format('{0}-{1}', matrix.os, matrix.arch) || matrix.os }}
+    runs-on: ubuntu-latest
     environment: release
     needs: [setup-environment, linux-depends]
     env:
       GOFLAGS: ${{ needs.setup-environment.outputs.GOFLAGS }}
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -651,9 +629,10 @@ jobs:
     strategy:
       matrix:
         suffix: ['', '-rocm']
-    runs-on: linux
+    runs-on: ubuntu-latest
     environment: release
     needs: [docker-build-push]
+    timeout-minutes: 120
     steps:
       - uses: docker/login-action@v3
         with:
@@ -685,6 +664,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     needs: [darwin-build, windows-app, docker-build-push]
+    timeout-minutes: 120
     permissions:
       contents: write
     env:

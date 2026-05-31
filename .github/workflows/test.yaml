@@ -118,8 +118,9 @@ jobs:
             superbuild_args: '-DOLLAMA_MLX_BACKENDS=cuda_v13 -DCMAKE_CUDA_ARCHITECTURES=87 -DMLX_CUDA_ARCHITECTURES=80-virtual -DBLAS_INCLUDE_DIRS=/usr/include/x86_64-linux-gnu -DLAPACK_INCLUDE_DIRS=/usr/include/x86_64-linux-gnu'
             expected_payload: lib/ollama/mlx_cuda_v13/libmlx.so
             install-go: true
-    runs-on: linux
+    runs-on: ubuntu-latest
     container: ${{ matrix.container }}
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -229,7 +230,8 @@ jobs:
               - '"nvvm"'
               - '"nvptxcompiler"'
             cuda-version: '13.0'
-    runs-on: windows
+    runs-on: windows-latest
+    timeout-minutes: 360
     steps:
       - run: |
           choco install -y --no-progress ccache ninja
