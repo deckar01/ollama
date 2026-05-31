@@ -380,12 +380,12 @@ func probeROCmSysfsLinux() ([]nativeProbeDevice, error) {
 }
 
 func rocmVisibleDevicesEnvSet() bool {
-	for _, name := range []string{"HIP_VISIBLE_DEVICES", "ROCR_VISIBLE_DEVICES", "GPU_DEVICE_ORDINAL"} {
-		if os.Getenv(name) != "" {
+	for _, name := range []string{"HIP_VISIBLE_DEVICES", "GPU_DEVICE_ORDINAL"} {
+		if len(splitNumericVisibleDeviceList(os.Getenv(name))) > 0 {
 			return true
 		}
 	}
-	return false
+	return len(splitVisibleDeviceList(os.Getenv("ROCR_VISIBLE_DEVICES"))) > 0
 }
 
 func probeNVIDIADriverMajorLinux() (int, error) {

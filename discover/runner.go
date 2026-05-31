@@ -510,7 +510,7 @@ func normalizeDiscoveryEnvForGOOS(goos string, ollamaLibDirs []string, extraEnvs
 		return extraEnvs
 	}
 
-	if extraEnvs["ROCR_VISIBLE_DEVICES"] != "" || envconfig.RocrVisibleDevices() != "" {
+	if rocrVisibleDevicesConfigured(extraEnvs) {
 		return extraEnvs
 	}
 
@@ -527,6 +527,15 @@ func normalizeDiscoveryEnvForGOOS(goos string, ollamaLibDirs []string, extraEnvs
 	env[source] = visibleDeviceOrdinals(len(tokens))
 	slog.Debug("normalizing AMD visible devices for ROCm discovery", "from_env", source, "ROCR_VISIBLE_DEVICES", env["ROCR_VISIBLE_DEVICES"], "visible_ordinals", env[source])
 	return env
+}
+
+func rocrVisibleDevicesConfigured(extraEnvs map[string]string) bool {
+	value := extraEnvs["ROCR_VISIBLE_DEVICES"]
+	if value == "" {
+		value = envconfig.RocrVisibleDevices()
+	}
+
+	return len(splitVisibleDeviceList(value)) > 0
 }
 
 func isROCmLibraryDir(name string) bool {

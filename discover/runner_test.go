@@ -311,6 +311,13 @@ func TestNormalizeROCmDiscoveryEnv(t *testing.T) {
 			wantSame: true,
 		},
 		{
+			name:        "invalid rocr falls back to numeric source",
+			env:         map[string]string{"ROCR_VISIBLE_DEVICES": ",", "HIP_VISIBLE_DEVICES": "2"},
+			wantROCR:    "2",
+			wantSource:  "HIP_VISIBLE_DEVICES",
+			wantOrdinal: "0",
+		},
+		{
 			name:     "cuda uuid does not become rocr",
 			env:      map[string]string{"CUDA_VISIBLE_DEVICES": "GPU-f3a94ab8-b31d-61ff-9fbb-ce91ac1cdd95"},
 			wantSame: true,
@@ -336,6 +343,45 @@ func TestNormalizeROCmDiscoveryEnv(t *testing.T) {
 			}
 			if got[tt.wantSource] != tt.wantOrdinal {
 				t.Fatalf("%s = %q, want %q", tt.wantSource, got[tt.wantSource], tt.wantOrdinal)
+			}
+		})
+	}
+}
+
+func TestRocrVisibleDevicesConfigured(t *testing.T) {
+	tests := []struct {
+		name  string
+		env   map[string]string
+		extra map[string]string
+		want  bool
+	}{
+		{
+			name: "valid environment value",
+			env:  map[string]string{"ROCR_VISIBLE_DEVICES": "GPU-123"},
+			want: true,
+		},
+		{
+			name: "invalid environment value",
+			env:  map[string]string{"ROCR_VISIBLE_DEVICES": ", ,"},
+		},
+		{
+			name:  "valid extra env value",
+			extra: map[string]string{"ROCR_VISIBLE_DEVICES": "1"},
+			want:  true,
+		},
+		{
+			name:  "invalid extra env value",
+			extra: map[string]string{"ROCR_VISIBLE_DEVICES": ", ,"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for key, value := range tt.env {
+				t.Setenv(key, value)
+			}
+			if got := rocrVisibleDevicesConfigured(tt.extra); got != tt.want {
+				t.Fatalf("rocrVisibleDevicesConfigured() = %v, want %v", got, tt.want)
 			}
 		})
 	}
