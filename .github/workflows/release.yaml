@@ -29,6 +29,7 @@ jobs:
           echo VERSION="${GITHUB_REF_NAME#v}" | tee -a $GITHUB_OUTPUT
           echo vendorsha=$(cat LLAMA_CPP_VERSION)-$(cat MLX_VERSION)-$(cat MLX_C_VERSION) | tee -a $GITHUB_OUTPUT
 
+  # Temporarily disabled: signing build requires password-based secrets.
   darwin-build:
     if: ${{ false }}
     runs-on: macos-latest
@@ -424,6 +425,7 @@ jobs:
             dist/*.ps1
             dist/OllamaSetup.exe
 
+  # Temporarily disabled: Docker build cache and push require password-based credentials.
   linux-depends:
     if: ${{ false }}
     strategy:
@@ -497,6 +499,7 @@ jobs:
   # Build each Docker variant (OS, arch, and flavor) separately. Using QEMU is unreliable and slower.
   # Heavy stages were pre-built by linux-depends; this job is cache-hit-only for those layers
   # and just assembles, runs the Go build, pushes the final image, and extracts release bundles.
+  # Temporarily disabled: image push requires password-based credentials.
   docker-build-push:
     if: ${{ false }}
     strategy:
@@ -631,6 +634,7 @@ jobs:
             *.tar.zst
 
   # Merge Docker images for the same flavor into a single multi-arch manifest
+  # Temporarily disabled: image merge/push requires password-based credentials.
   docker-merge-push:
     if: ${{ false }}
     strategy:
@@ -670,6 +674,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: release
+    # Temporary: only password-independent artifacts are included (darwin/docker artifacts excluded).
     needs: [windows-app]
     timeout-minutes: 120
     permissions:

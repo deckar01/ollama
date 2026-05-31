@@ -4,7 +4,11 @@ on:
   release:
     types: [released]
 
+permissions:
+  contents: read
+
 jobs:
+  # Temporarily disabled: this job requires Docker Hub password-based credentials.
   update-latest:
     if: ${{ false }}
     environment: release
