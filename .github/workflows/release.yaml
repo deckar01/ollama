@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
 env:
   CGO_CFLAGS: '-O3'
   CGO_CXXFLAGS: '-O3'
