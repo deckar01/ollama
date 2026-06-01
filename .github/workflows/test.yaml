@@ -118,7 +118,7 @@ jobs:
             superbuild_args: '-DOLLAMA_MLX_BACKENDS=cuda_v13 -DCMAKE_CUDA_ARCHITECTURES=87 -DMLX_CUDA_ARCHITECTURES=80-virtual -DBLAS_INCLUDE_DIRS=/usr/include/x86_64-linux-gnu -DLAPACK_INCLUDE_DIRS=/usr/include/x86_64-linux-gnu'
             expected_payload: lib/ollama/mlx_cuda_v13/libmlx.so
             install-go: true
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, beef-house]
     container: ${{ matrix.container }}
     timeout-minutes: 360
     steps:
